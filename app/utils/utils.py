@@ -82,7 +82,7 @@ def transcribe_file_fast(path: str = None, model=""):
         # or run on CPU with INT8
         model = WhisperModel(model_size, device="cpu", compute_type="int8")
 
-        segments, info = model.transcribe("audio.mp3", beam_size=5)
+        segments, info = model.transcribe(path, beam_size=5)
 
         # print("Detected language '%s' with probability %f" % (info.language, info.language_probability))
 
@@ -90,7 +90,7 @@ def transcribe_file_fast(path: str = None, model=""):
         # print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
         segments = list(segments)
 
-        return ["".join(segments), output_audio_path]
+        return ["".join(s.text for s in segments), output_audio_path]
 
     except Exception as exc:
         logging.error(exc)
