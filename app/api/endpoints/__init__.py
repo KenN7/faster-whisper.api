@@ -8,3 +8,4 @@ router = APIRouter()
 
 router.include_router(users.router, prefix="/users", tags=["users"])
 router.include_router(transcribe.router, prefix="/transcribe", tags=["transcribe"])
+router.include_router(transcribe.router, prefix="/transcribe_fast", tags=["transcribe_fast"])

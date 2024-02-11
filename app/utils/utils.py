@@ -63,16 +63,11 @@ def transcribe_file(path: str = None, model="ggml-model-whisper-tiny.en-q5_1.bin
         raise HTTPException(status_code=400, detail=exc.__str__())
 
 
-def transcribe_file_fast(path: str = None, model=""):
+def transcribe_file_fast(path: str = None, model_size="medium.en"):
     try:
-        model_size = "large-v3"
-
+        # model_size = "large-v3"
         if path is None:
             raise HTTPException(status_code=400, detail="No path provided")
-
-        rand = uuid.uuid4()
-        # outputFilePath: str = f"transcribe/{rand}.txt"
-        output_audio_path: str = f"audio/{rand}.wav"
 
         # Run on GPU with FP16
         # model = WhisperModel(model_size, device="cuda", compute_type="float16")
@@ -90,7 +85,7 @@ def transcribe_file_fast(path: str = None, model=""):
         # print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
         segments = list(segments)
 
-        return ["".join(s.text for s in segments), output_audio_path]
+        return "".join(s.text for s in segments)
 
     except Exception as exc:
         logging.error(exc)
