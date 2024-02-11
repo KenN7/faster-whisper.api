@@ -12,15 +12,14 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Whisper API"
     PROJECT_VERSION: str = "0.1.0"
     SECRET_KEY: str = env.get("SECRET_KEY")
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = (
-        env.get("ACCESS_TOKEN_EXPIRE_MINUTES") or 60 * 24 * 7
-    )
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = env.get("ACCESS_TOKEN_EXPIRE_MINUTES") or 60 * 24 * 7
 
     SERVER_NAME: str = env.get("SERVER_NAME")
     SERVER_HOST: AnyHttpUrl = env.get("SERVER_HOST")
 
     POSTGRES_DATABASE_URL: str = env.get("POSTGRES_DATABASE_URL")
     TEST_DATABASE_URL: str = env.get("POSTGRES_DATABASE_URL")
+    REGISTRATION_DISABLED: str = env.get("REGISTRATION_DISABLED")
 
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [
         "http://localhost:3000",
@@ -41,17 +40,13 @@ class Settings(BaseSettings):
         return v
 
     @field_validator("SERVER_HOST")
-    def server_host_must_be_set(
-        cls, v: Optional[str], values: Dict[str, Any]
-    ) -> AnyHttpUrl:
+    def server_host_must_be_set(cls, v: Optional[str], values: Dict[str, Any]) -> AnyHttpUrl:
         if not v:
             raise ValueError("SERVER_HOST must be set")
         return v
 
     @field_validator("POSTGRES_DATABASE_URL")
-    def postgres_db_url_must_be_set(
-        cls, v: Optional[str], values: Dict[str, Any]
-    ) -> str:
+    def postgres_db_url_must_be_set(cls, v: Optional[str], values: Dict[str, Any]) -> str:
         if not v:
             raise ValueError("POSTGRES_DATABASE_URL must be set")
         return v
