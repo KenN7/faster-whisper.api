@@ -23,14 +23,14 @@ async def post_audio(
     background_tasks: BackgroundTasks,
     request: Request,
     file: UploadFile = File(...),
-    model: str = "tiny.en.q5",
+    model: str = "medium.en",
     Authentication: Annotated[Union[str, None], Header()] = None,
 ):
     try:
         userId = AuthTokenController(database).get_userid_from_token(Authentication)
         file_path = save_audio_file(file)
         # [data, output_audio_path] = transcribe_file(file_path, get_model_name(model))
-        data = transcribe_file_fast(file_path, get_model_name(model))
+        data = transcribe_file_fast(file_path, model)
         # background_tasks.add_task(create_transcribe_record, database, userId, data, output_audio_path)
         # No record
 
