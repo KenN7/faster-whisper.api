@@ -13,3 +13,4 @@ PyJWT
 python-multipart
 gdown
 pydantic-settings
+faster-whisper

@@ -9,6 +9,8 @@ import wave
 import gdown
 from tqdm import tqdm
 
+from faster_whisper import WhisperModel
+
 
 from .constant import model_names
 
@@ -56,6 +58,40 @@ def transcribe_file(path: str = None, model="ggml-model-whisper-tiny.en-q5_1.bin
         data = f.read()
         f.close()
         return [data, output_audio_path]
+    except Exception as exc:
+        logging.error(exc)
+        raise HTTPException(status_code=400, detail=exc.__str__())
+
+
+def transcribe_file_fast(path: str = None, model=""):
+    try:
+        model_size = "large-v3"
+
+        if path is None:
+            raise HTTPException(status_code=400, detail="No path provided")
+
+        rand = uuid.uuid4()
+        # outputFilePath: str = f"transcribe/{rand}.txt"
+        output_audio_path: str = f"audio/{rand}.wav"
+
+        # Run on GPU with FP16
+        # model = WhisperModel(model_size, device="cuda", compute_type="float16")
+
+        # or run on GPU with INT8
+        # model = WhisperModel(model_size, device="cuda", compute_type="int8_float16")
+        # or run on CPU with INT8
+        model = WhisperModel(model_size, device="cpu", compute_type="int8")
+
+        segments, info = model.transcribe("audio.mp3", beam_size=5)
+
+        # print("Detected language '%s' with probability %f" % (info.language, info.language_probability))
+
+        # for segment in segments:
+        # print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
+        segments = list(segments)
+
+        return ["".join(segments), output_audio_path]
+
     except Exception as exc:
         logging.error(exc)
         raise HTTPException(status_code=400, detail=exc.__str__())
@@ -113,24 +149,18 @@ def download_from_drive(url, output):
         gdown.download(url, output, quiet=False)
         return True
     except:
-        raise HTTPException(
-            status_code=400, detail="Error Occured in Downloading model from Gdrive"
-        )
+        raise HTTPException(status_code=400, detail="Error Occured in Downloading model from Gdrive")
 
 
 def download_file(url, filepath):
     try:
         filename = os.path.basename(url)
 
-        with tqdm(
-            unit="B", unit_scale=True, unit_divisor=1024, miniters=1, desc=filename
-        ) as progress_bar:
+        with tqdm(unit="B", unit_scale=True, unit_divisor=1024, miniters=1, desc=filename) as progress_bar:
             urllib.request.urlretrieve(
                 url,
                 filepath,
-                reporthook=lambda block_num, block_size, total_size: progress_bar.update(
-                    block_size
-                ),
+                reporthook=lambda block_num, block_size, total_size: progress_bar.update(block_size),
             )
 
         print("File downloaded successfully!")

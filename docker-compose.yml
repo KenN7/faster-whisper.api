@@ -1,0 +1,34 @@
+version: "3"
+
+networks:
+  web:
+    external: true
+
+services:
+  whisper:
+    build: .
+    restart: unless-stopped
+    networks:
+      - web
+      - default
+    #volumes:
+    #
+    env_file:
+      - .env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whisper.rule=Host(`whisper.ig11.ananas.space`)"
+      - "traefik.http.services.whisper.loadbalancer.server.port=7860"
+  postgresql:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=whisperdb
+      - POSTGRES_USER=postgreuser
+    env_file:
+      - .env
+    volumes:
+      - ${DATA_ROOT_DIR:-/srv/data}/whisper/db:/var/lib/postgresql/data
+    networks:
+      - default
+
